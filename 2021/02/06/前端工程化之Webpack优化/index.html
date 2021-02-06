@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>前端工程化之Webpack优化 | 覆水行舟的博客</title><meta name="description" content="笔者在对前端工程化的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改 Webpack优化Webpack 的优化瓶颈，主要是 2 个方面： Webpack 的构建过程太花时间Webpack 打包的结果体积太大 针对 Webpack 本身构建优化优化 resolve.modules 配置resolve.modules 用于配置 Webpack 去哪些目录下寻找第三方模"><meta name="keywords" content="前端工程化"><meta name="author" content="覆水行舟"><meta name="copyright" content="覆水行舟"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="http://github.com/2021/02/06/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B9%8BWebpack%E4%BC%98%E5%8C%96/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="前端工程化之Webpack优化"><meta property="og:url" content="http://github.com/2021/02/06/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B9%8BWebpack%E4%BC%98%E5%8C%96/"><meta property="og:site_name" content="覆水行舟的博客"><meta property="og:description" content="笔者在对前端工程化的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改 Webpack优化Webpack 的优化瓶颈，主要是 2 个方面： Webpack 的构建过程太花时间Webpack 打包的结果体积太大 针对 Webpack 本身构建优化优化 resolve.modules 配置resolve.modules 用于配置 Webpack 去哪些目录下寻找第三方模"><meta property="og:image" content="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg"><meta property="article:published_time" content="2021-02-05T16:00:00.000Z"><meta property="article:modified_time" content="2021-02-05T16:00:00.000Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-02-06 00:00:00'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.0.0"><link rel="alternate" href="/atom.xml" title="覆水行舟的博客" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">24</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">8</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Webpack%E4%BC%98%E5%8C%96"><span class="toc-text">Webpack优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%92%88%E5%AF%B9-Webpack-%E6%9C%AC%E8%BA%AB%E6%9E%84%E5%BB%BA%E4%BC%98%E5%8C%96"><span class="toc-text">针对 Webpack 本身构建优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-resolve-modules-%E9%85%8D%E7%BD%AE"><span class="toc-text">优化 resolve.modules 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-resolve-extensions-%E9%85%8D%E7%BD%AE"><span class="toc-text">优化 resolve.extensions 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-resolve-include-exclude-%E9%85%8D%E7%BD%AE"><span class="toc-text">优化 resolve.include&#x2F;exclude 配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-Loader-%E5%92%8C-Plugin-%E4%BC%98%E5%8C%96"><span class="toc-text">通过 Loader 和 Plugin 优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98"><span class="toc-text">缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%BF%9B%E7%A8%8B"><span class="toc-text">多进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%BF%9B%E7%A8%8B%E5%8E%8B%E7%BC%A9"><span class="toc-text">多进程压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%88%86%E7%A6%BB"><span class="toc-text">静态资源分离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E7%A6%BB"><span class="toc-text">代码分离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%93%E5%8C%85%E8%B5%84%E6%BA%90%E5%8E%8B%E7%BC%A9"><span class="toc-text">打包资源压缩</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E4%BC%98%E5%8C%96%E7%82%B9"><span class="toc-text">其他优化点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Tree-Shaking"><span class="toc-text">1. Tree Shaking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Scope-Hoisting"><span class="toc-text">2. Scope Hoisting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8C%89%E9%9C%80%E5%8A%A0%E8%BD%BD"><span class="toc-text">3. 按需加载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E4%BD%93%E9%AA%8C"><span class="toc-text">优化体验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">覆水行舟的博客</a></span><span class="pull-right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">前端工程化之Webpack优化</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-02-05T16:00:00.000Z" title="发表于 2021-02-06 00:00:00">2021-02-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-02-05T16:00:00.000Z" title="更新于 2021-02-06 00:00:00">2021-02-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96/">前端工程化</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>笔者在对前端工程化的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改</p>
+<h2 id="Webpack优化"><a href="#Webpack优化" class="headerlink" title="Webpack优化"></a>Webpack优化</h2><p>Webpack 的优化瓶颈，主要是 2 个方面：</p>
+<p>Webpack 的构建过程太花时间<br>Webpack 打包的结果体积太大</p>
+<h2 id="针对-Webpack-本身构建优化"><a href="#针对-Webpack-本身构建优化" class="headerlink" title="针对 Webpack 本身构建优化"></a>针对 Webpack 本身构建优化</h2><h3 id="优化-resolve-modules-配置"><a href="#优化-resolve-modules-配置" class="headerlink" title="优化 resolve.modules 配置"></a>优化 resolve.modules 配置</h3><p><code>resolve.modules</code> 用于配置<code> Webpack</code> 去哪些目录下寻找第三方模块，默认是 <code>[&#39;node_modules&#39;]</code>。</p>
+<p>但是，它会先去当前目录的 <code>./node_modules</code> 查找，没有的话再去 <code>../node_modules</code>，最后到根目录 —— 即 <code>npm</code> 查找包的规则。</p>
+<p>所以可以直接指定项目根目录，这样代码就不需要一层一层查找。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">resolve: &#123;</span><br><span class="line">  modules: [path.resolve(__dirname, <span class="string">&#x27;node_modules&#x27;</span>)],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="优化-resolve-extensions-配置"><a href="#优化-resolve-extensions-配置" class="headerlink" title="优化 resolve.extensions 配置"></a>优化 resolve.extensions 配置</h3><p>在导入没带文件后缀的路径时，<code>Webpack</code> 会自动带上后缀去尝试询问文件是否存在，而 <code>resolve.extensions</code> 用于配置尝试后缀列表；默认为 <code>extensions:[&#39;js&#39;, &#39;json&#39;]</code>。</p>
+<p>当遇到 <code>require(&#39;./data&#39;)</code> 时 <code>Webpack</code> 会先尝试寻找 <code>data.js</code>，没有再去找 <code>data.json</code>；如果列表越长，或者正确的后缀越往后，尝试的次数就会越多。</p>
+<p>所以在配置时为提升构建优化需遵守：</p>
+<ul>
+<li>频率出现高的文件后缀优先放在前面。</li>
+<li>列表尽可能的少，例如只有 3 个：js、jsx、json。</li>
+<li>书写导入语句时，尽量写上后缀名。</li>
+</ul>
+<h3 id="优化-resolve-include-exclude-配置"><a href="#优化-resolve-include-exclude-配置" class="headerlink" title="优化 resolve.include/exclude 配置"></a>优化 resolve.include/exclude 配置</h3><p>以 <code>babel-loader</code> 为例，可以通过 <code>include</code> 和 <code>exclude</code> 帮助我们避免 <code>node_modules</code> 这类庞大文件夹。</p>
+<p>即通过 <code>include</code> 告诉 <code>Webpack</code> 哪些我们是需要检测的，通过 <code>exclude</code> 告诉 <code>Webpack</code> 哪些我们是不需要检测的（例如已经收拾过的静态资源）</p>
+<h2 id="通过-Loader-和-Plugin-优化"><a href="#通过-Loader-和-Plugin-优化" class="headerlink" title="通过 Loader 和 Plugin 优化"></a>通过 Loader 和 Plugin 优化</h2><h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><ul>
+<li><p>cache-loader</p>
+<p>在 babel-loader 开启 cache 后，将 loader 的编译结果写进硬盘缓存，再次构建如果文件没有发生变化则会直接拉取缓存。</p>
+</li>
+<li><p>uglifyjs-webpack-plugin</p>
+<p>通过这个插件也可以解决缓存问题。</p>
+</li>
+</ul>
+<blockquote>
+<p>注：具体的要根据当前的 Webpack 版本，Loader 和 Plugin 表示 Webpack 每次更新都会淘汰一批没有跟进维护的 Loader 和 Plugin。就跟大佬还在持续学习，你几年没学习之后，遇到金融危机被淘汰的风险就高了。</p>
+</blockquote>
+<h3 id="多进程"><a href="#多进程" class="headerlink" title="多进程"></a>多进程</h3><p>由于有大量文件需要解析和处理，构建是文件读写和计算密集型的操作，特别是当文件数量变多后，Webpack 构建慢的问题会显得严重。</p>
+<p>文件读写和计算操作是无法避免的，那能不能让 Webpack 同一时刻处理多个任务，发挥多核 CPU 电脑的威力，以提升构建速度呢？</p>
+<p><code>Happypack</code> 可以将任务分解成多个子进程去并发执行，大大提升打包效率。</p>
+<p>除此之外 <code>thread-loader</code> 和 <code>Happypack</code> 一样，但是配置比较简单。</p>
+<blockquote>
+<p>  <code>Happypack</code> 已经不维护了。</p>
+</blockquote>
+<h3 id="多进程压缩"><a href="#多进程压缩" class="headerlink" title="多进程压缩"></a>多进程压缩</h3><p>因为自带的 <code>UglifyjsWebpackPlugin</code> 压缩插件是单线程运行的，而 <code>TerserWebpackPlugin</code> 可以并发运行压缩功能（多进程）。</p>
+<p>所以通过 <code>TerserWebpackPlugin</code> 代替自带的 <code>UglifyjsWebpackPlugin</code> 插件。</p>
+<h3 id="静态资源分离"><a href="#静态资源分离" class="headerlink" title="静态资源分离"></a>静态资源分离</h3><p>通过 <code>DllPlugin</code> 或者 <code>Externals</code> 进行静态依赖包的分离。</p>
+<p>由于 <code>CommonsChunkPlugin</code> 每次构建会重新构建一次 <code>vendor</code>，所以出于效率考虑，使用<code>DllPlugin</code>将第三方库单独打包到一个文件中，只有依赖自身发生版本变化时才会重新打包。</p>
+<h3 id="代码分离"><a href="#代码分离" class="headerlink" title="代码分离"></a>代码分离</h3><p>在 <code>Webpack </code>中，到底什么是代码分离？代码分离允许你把代码拆分到多个文件中。如果使用得当，你的应用性能会提高很多。因为浏览器能缓存你的代码。</p>
+<p>每当你做出一次修改，包含修改的文件需要被所有访问你网站的人重新下载。但你并不会经常修改应用的依赖库。</p>
+<p>如果你能把那些依赖库拆分到完全分离的文件中，即使业务逻辑发生了更改，访问者也不需要再次下载依赖库，直接使用之前的缓存就可以了。</p>
+<p>由于有了 <code>SplitChunksPlugin</code>，你可以把应用中的特定部分移至不同文件。如果一个模块在不止一个 chunk 中被使用，那么利用代码分离，该模块就可以在它们之间很好地被共享。</p>
+<h3 id="打包资源压缩"><a href="#打包资源压缩" class="headerlink" title="打包资源压缩"></a>打包资源压缩</h3><ul>
+<li>JS 压缩：<code>UglifyjsWebpackPlugin</code></li>
+<li>HTML 压缩：<code>HtmlWebpackPlugin</code></li>
+<li>CSS 压缩：<code>MiniCssExtractPlugin</code></li>
+<li>图片压缩：<code>image-webpack-loader</code></li>
+<li>Gzip 压缩：不包括图片</li>
+</ul>
+<h2 id="其他优化点"><a href="#其他优化点" class="headerlink" title="其他优化点"></a>其他优化点</h2><h3 id="1-Tree-Shaking"><a href="#1-Tree-Shaking" class="headerlink" title="1. Tree Shaking"></a>1. Tree Shaking</h3><p>通过 ES6 的<code>import/export</code>来检查未引用代码，以及 <code>sideEffects</code> 来标记无副作用代码，最后用 <code>UglifyJSPlugin</code> 来做 <code>Tree Shaking</code>，从而删除冗余代码。</p>
+<h3 id="2-Scope-Hoisting"><a href="#2-Scope-Hoisting" class="headerlink" title="2. Scope Hoisting"></a>2. Scope Hoisting</h3><p><code>Scope Hoisting</code> 是 <code>Webpack3</code> 的新功能，直译为 「<code>作用域提升」</code>，它可以让 <code>Webpack</code> 打包出来的 <code>「代码文件更小」</code>，<code>「运行速度更快」</code>。</p>
+<p>熟悉 <code>JavaScript </code>都应该知道 <code>「函数提升」</code> 和 <code>「变量提升」</code> ，<code>JavaScript</code> 会把函数和变量声明提升到当前作用域的顶部。</p>
+<p><code>「作用域提升」</code> 也类似于此，<code>Webpack</code> 会把引入的 <code>js</code> 文件 <code>“提升到”</code> 它的引入者顶部。</p>
+<p><code>Scope Hoisting</code> 的实现原理其实很简单：分析出模块之间的依赖关系，尽可能将打散的模块合并到一个函数中，前提是不能造成代码冗余。因此「只有那些被引用了一次的模块才能被合并」。</p>
+<p>由于 <code>Scope Hoisting</code> 需要分析出模块之间的依赖关系，因此源码<code>「必须采用 ES6 模块化语句」</code>，不然它将无法生效。原因和 <code>Tree Shaking </code>中介绍的类似。</p>
+<h3 id="3-按需加载"><a href="#3-按需加载" class="headerlink" title="3. 按需加载"></a>3. 按需加载</h3><p>什么是 代码分割（<code>code splitting</code>）？</p>
+<p>代码分割是指：将脚本中无需立即调用的代码在代码构建时转变为异步加载的过程。</p>
+<p>在 <code>Webpack</code> 构建时，会避免加载已声明要异步加载的代码，异步代码会被单独分离出一个文件，当代码实际调用时被加载至页面。</p>
+<p>代码分割技术的核心是 <code>异步加载资源</code>。</p>
+<p>可喜的是，浏览器允许我们这么做，<code>W3C stage 3</code> 规范： <code>whatwg/loader</code> 对其进行了定义：你可以通过 <code>import()</code> 关键字让浏览器在程序执行时异步加载相关资源。</p>
+<p>在 <code>Vue</code> 中，可以直接使用 <code>import()</code> 关键字做到这一点，而在 <code>React</code> 中，你需要使用 <code>react-loadable</code> 去完成同样的事。</p>
+<h2 id="优化体验"><a href="#优化体验" class="headerlink" title="优化体验"></a>优化体验</h2><ul>
+<li><p><code>progress-bar-webpack-plugin</code>：在终端底部，将会有一个构建的进度条，可以让你清晰的看见构建的执行进度。</p>
+</li>
+<li><p><code>webpack-build-notifier</code>：在构建完成时，能够像微信、Lark 这样的 APP 弹出消息的方式，提示构建已经完成。</p>
+</li>
+<li><p><code>webpack-dashboard</code>：对 <code>Webpack</code> 原始的构建输出不满意的话，也可以使用这样一款 Plugin 来优化你的输出界面。</p>
+</li>
+<li><p><code>speed-measure-webpack-plugin</code>：该插件可以测量各个插件和 <code>loader</code> 所花费的时间。</p>
+</li>
+<li><p><code>webpack-bundle-analyzer</code>：可视化分析。通过矩阵树图的方式将包内各个模块的大小和依赖关系呈现出来。</p>
+</li>
+<li><p><code>webpack-chart</code></p>
+</li>
+<li><p><code>webpack-analyse</code></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></li>
+</ul>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903924806189070#heading-0">Webpack优化——将你的构建效率提速翻倍</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://louiszhai.github.io/2019/01/04/webpack4/">使用webpack4提升180%编译速度</a></p>
+</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://lonelyzou.github.io/">覆水行舟</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://lonelyzou.github.io/">https://lonelyzou.github.io/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">此文章版权归覆水行舟所有，如有转载，请註明来自原作者</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96/">前端工程化</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.png" target="_blank"><img class="post-qr-code-img" data-lazy-src="/img/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" data-lazy-src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B9%8BHTTP/"><img class="next-cover" data-lazy-src="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计算机网络之HTTP</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2021/02/01/前端工程化/" title="前端工程化"><img class="relatedPosts_cover" data-lazy-src="https://i.loli.net/2020/08/05/H1fRJEoGhWv2Vy6.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-01</div><div class="relatedPosts_title">前端工程化</div></div></a></div><div class="relatedPosts_item"><a href="/2021/02/01/前端工程化之Webpack/" title="前端工程化之Webpack"><img class="relatedPosts_cover" data-lazy-src="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-01</div><div class="relatedPosts_title">前端工程化之Webpack</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 覆水行舟</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer="defer" id="ribbon_piao" mobile="true" src="/js/third-party/piao.js"></script></div></body></html>
