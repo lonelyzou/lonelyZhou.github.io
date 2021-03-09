@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>面试宝典之VueAPI面试篇 | 覆水行舟的博客</title><meta name="description" content="笔者在对vue面试的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改 v-show 和 v-if指令的共同点和不同点共同点： 都能控制元素的显示和隐藏； 不同点：  实现本质方法不同  v-show： 本质就是通过控制 css 中的 display 设置为 none，控制隐藏，只会编译一次； v-if： 是动态的向 DOM 树内添加或者删除 DOM 元素，若初始值"><meta name="keywords" content="面试 Vue"><meta name="author" content="覆水行舟"><meta name="copyright" content="覆水行舟"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="http://github.com/2021/03/05/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BVueAPI%E9%9D%A2%E8%AF%95%E7%AF%87/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="面试宝典之VueAPI面试篇"><meta property="og:url" content="http://github.com/2021/03/05/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BVueAPI%E9%9D%A2%E8%AF%95%E7%AF%87/"><meta property="og:site_name" content="覆水行舟的博客"><meta property="og:description" content="笔者在对vue面试的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改 v-show 和 v-if指令的共同点和不同点共同点： 都能控制元素的显示和隐藏； 不同点：  实现本质方法不同  v-show： 本质就是通过控制 css 中的 display 设置为 none，控制隐藏，只会编译一次； v-if： 是动态的向 DOM 树内添加或者删除 DOM 元素，若初始值"><meta property="og:image" content="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg"><meta property="article:published_time" content="2021-03-04T16:00:00.000Z"><meta property="article:modified_time" content="2021-03-04T16:00:00.000Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-03-05 00:00:00'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.0.0"><link rel="alternate" href="/atom.xml" title="覆水行舟的博客" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" data-lazy-src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">32</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">13</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">13</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#v-show-%E5%92%8C-v-if%E6%8C%87%E4%BB%A4%E7%9A%84%E5%85%B1%E5%90%8C%E7%82%B9%E5%92%8C%E4%B8%8D%E5%90%8C%E7%82%B9"><span class="toc-text">v-show 和 v-if指令的共同点和不同点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8key-Key-%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%95%B0%E7%BB%84%E7%9A%84-index%EF%BC%88%E4%B8%8B%E6%A0%87%EF%BC%89%E4%BB%A3%E6%9B%BF%E4%B9%88%EF%BC%9F%EF%BC%88%E7%BE%8E%E5%9B%A2%EF%BC%89"><span class="toc-text">为什么使用key? Key 的作用是什么？可以用数组的 index（下标）代替么？（美团）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-model%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E5%8F%8A%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89v-model"><span class="toc-text">v-model中的实现原理及如何自定义v-model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9CSS%E5%8F%AA%E5%9C%A8%E5%BD%93%E5%89%8D%E7%BB%84%E4%BB%B6%E4%B8%AD%E8%B5%B7%E4%BD%9C%E7%94%A8"><span class="toc-text">如何让CSS只在当前组件中起作用?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%B7%E8%AF%B4%E5%87%BAvue-cli%E9%A1%B9%E7%9B%AE%E4%B8%ADsrc%E7%9B%AE%E5%BD%95%E6%AF%8F%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9%E5%92%8C%E6%96%87%E4%BB%B6%E7%9A%84%E7%94%A8%E6%B3%95"><span class="toc-text">请说出vue.cli项目中src目录每个文件夹和文件的用法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue%E7%BB%84%E4%BB%B6%E4%B8%ADdata%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E6%98%AF%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0"><span class="toc-text">vue组件中data为什么必须是一个函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E5%BC%82%E6%AD%A5%E7%BB%84%E4%BB%B6%EF%BC%9F"><span class="toc-text">为什么要使用异步组件？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%88%E8%B0%88%E5%AF%B9-keep-alive-%E7%9A%84%E4%BA%86%E8%A7%A3"><span class="toc-text">谈谈对 keep-alive 的了解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Computed-watch-%E5%92%8C-method-%E7%AE%80%E8%BF%B0computed%E5%92%8Cwatch%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">Computed watch 和 method, 简述computed和watch的使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">使用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-if%E5%92%8Cv-for%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-text">v-if和v-for的优先级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#assets%E5%92%8Cstatic%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">assets和static的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%B4%E5%87%BA%E5%87%A0%E7%A7%8Dvue%E5%BD%93%E4%B8%AD%E7%9A%84%E6%8C%87%E4%BB%A4%E5%92%8C%E5%AE%83%E7%9A%84%E7%94%A8%E6%B3%95%EF%BC%9F"><span class="toc-text">说出几种vue当中的指令和它的用法？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue-loader%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%BD%BF%E7%94%A8%E5%AE%83%E7%9A%84%E7%94%A8%E9%80%94%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="toc-text">vue-loader是什么？使用它的用途有哪些？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-on%E5%8F%AF%E4%BB%A5%E7%9B%91%E5%90%AC%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95"><span class="toc-text">v-on可以监听多个方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%86%E8%A7%A3-nextTick-%E5%90%97%EF%BC%9F"><span class="toc-text">了解 nextTick 吗？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nextTick%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">$nextTick的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-html-%E4%BC%9A%E5%AF%BC%E8%87%B4%E5%93%AA%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="toc-text">v-html 会导致哪些问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="toc-text">vue常用的修饰符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%BF%9B%E7%BB%84%E4%BB%B6%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-text">引进组件的步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#delete%E5%92%8CVue-delete%E5%88%A0%E9%99%A4%E6%95%B0%E7%BB%84%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">delete和Vue.delete删除数组的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue-slot"><span class="toc-text">vue slot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E6%A7%BD%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F%E6%8F%92%E6%A7%BD%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">插槽与作用域插槽的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#slot%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8%EF%BC%9F%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">slot是什么？有什么作用？原理是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%B7%E8%AF%B4%E4%B8%8B%E5%B0%81%E8%A3%85-vue-%E7%BB%84%E4%BB%B6%E7%9A%84%E8%BF%87%E7%A8%8B%EF%BC%9F"><span class="toc-text">请说下封装 vue 组件的过程？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue-%E4%B8%AD%E7%9B%B8%E5%90%8C%E9%80%BB%E8%BE%91%E5%A6%82%E4%BD%95%E6%8A%BD%E7%A6%BB"><span class="toc-text">vue 中相同逻辑如何抽离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue%E4%BF%AE%E6%94%B9%E6%89%93%E5%8C%85%E5%90%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E8%B7%AF%E5%BE%84%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="toc-text">vue修改打包后静态资源路径的修改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%82%A3template%E5%92%8Cjsx%E7%9A%84%E6%9C%89%E4%BB%80%E4%B9%88%E5%88%86%E5%88%AB%EF%BC%9F"><span class="toc-text">那template和jsx的有什么分别？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-vue-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%9F%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8%EF%BC%9F"><span class="toc-text">什么是 vue 生命周期？有什么作用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AC%A1%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E4%BC%9A%E8%A7%A6%E5%8F%91%E5%93%AA%E5%87%A0%E4%B8%AA%E9%92%A9%E5%AD%90%EF%BC%9F"><span class="toc-text">第一次页面加载会触发哪几个钩子？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8BVue%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">介绍一下Vue的生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%9A%E4%BF%A1%E7%9A%84"><span class="toc-text">组件之间是怎么通信的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%B4%E4%B8%80%E4%B8%8BVue-%E7%9A%84%E7%88%B6%E7%BB%84%E4%BB%B6%E5%92%8C%E5%AD%90%E7%BB%84%E4%BB%B6%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%92%A9%E5%AD%90%E5%87%BD%E6%95%B0%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%EF%BC%9F"><span class="toc-text">说一下Vue 的父组件和子组件生命周期钩子函数执行顺序？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%90%E7%BB%84%E4%BB%B6%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E6%94%B9%E5%8F%98%E7%88%B6%E7%BB%84%E4%BB%B6%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B9%88%EF%BC%9F%E8%AF%B4%E8%AF%B4%E4%BD%A0%E7%9A%84%E7%90%86%E7%94%B1%EF%BC%9F"><span class="toc-text">子组件可以直接改变父组件的数据么？说说你的理由？</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">覆水行舟的博客</a></span><span class="pull-right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">面试宝典之VueAPI面试篇</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-03-04T16:00:00.000Z" title="发表于 2021-03-05 00:00:00">2021-03-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-03-04T16:00:00.000Z" title="更新于 2021-03-05 00:00:00">2021-03-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95-Vue/">面试 Vue</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>笔者在对vue面试的一些知识做的系统梳理总结，目前仅供笔者复习知识用，若涉及版权问题，请联系我进行修改</p>
+<h2 id="v-show-和-v-if指令的共同点和不同点"><a href="#v-show-和-v-if指令的共同点和不同点" class="headerlink" title="v-show 和 v-if指令的共同点和不同点"></a>v-show 和 v-if指令的共同点和不同点</h2><p>共同点： 都能控制元素的显示和隐藏；</p>
+<p>不同点：</p>
+<ol>
+<li><p>实现本质方法不同</p>
+<ul>
+<li>v-show： 本质就是通过控制 css 中的 display 设置为 none，控制隐藏，只会编译一次；</li>
+<li>v-if： 是动态的向 DOM 树内添加或者删除 DOM 元素，若初始值为 false ，就不会编译了。而且 v-if 不停的销毁和创建比较消耗性能。</li>
+</ul>
+</li>
+<li><p>总结<br>如果要频繁切换某节点，使用 v-show (切换开销比较小，初始开销较大)。如果不需要频繁切换某节点使用 v-if（初始渲染开销较小，切换开销比较大）。</p>
+</li>
+</ol>
+<h2 id="为什么使用key-Key-的作用是什么？可以用数组的-index（下标）代替么？（美团）"><a href="#为什么使用key-Key-的作用是什么？可以用数组的-index（下标）代替么？（美团）" class="headerlink" title="为什么使用key? Key 的作用是什么？可以用数组的 index（下标）代替么？（美团）"></a>为什么使用key? Key 的作用是什么？可以用数组的 index（下标）代替么？（美团）</h2><p>使用 key 来给每个节点做一个唯一标识， Diff 算法就可以正确的识别此节点</p>
+<ol>
+<li>key 的作用主要是为了高效的更新虚拟 DOM。另外 vue 中在使用相同标签<br>名元素的过渡切换时，也会使用到 key 属性，其目的也是为了让 vue 可以<br>区分它们。否则 vue 只会替换其内部属性而不会触发过渡效果</li>
+<li>key 不能用 index 代替，index 在同一个页面会有重复的情况，违背了高效<br>渲染的初衷。</li>
+</ol>
+<h2 id="v-model中的实现原理及如何自定义v-model"><a href="#v-model中的实现原理及如何自定义v-model" class="headerlink" title="v-model中的实现原理及如何自定义v-model"></a>v-model中的实现原理及如何自定义<code>v-model</code></h2><ol>
+<li><code>v-model</code> 可以看成是 <code>value</code>+<code>input</code> 方法的语法糖（组件）。</li>
+<li>原生的 v-model ，会根据标签的不同生成不同的事件与属性。解析一个指令来。</li>
+<li>自定义：自己写 <code>model</code> 属性，里面放上 <code>prop</code> 和 <code>event</code></li>
+</ol>
+<h2 id="如何让CSS只在当前组件中起作用"><a href="#如何让CSS只在当前组件中起作用" class="headerlink" title="如何让CSS只在当前组件中起作用?"></a>如何让CSS只在当前组件中起作用?</h2><p>在组件中的 style 前面加上 scoped</p>
+<h2 id="请说出vue-cli项目中src目录每个文件夹和文件的用法"><a href="#请说出vue-cli项目中src目录每个文件夹和文件的用法" class="headerlink" title="请说出vue.cli项目中src目录每个文件夹和文件的用法"></a>请说出vue.cli项目中src目录每个文件夹和文件的用法</h2><ul>
+<li>assets 文件夹是放静态资源；</li>
+<li>components 是放组件；</li>
+<li>router 是定义路由相关的配置;</li>
+<li>app.vue 是一个应用主组件；</li>
+<li>main.js 是入口文件。</li>
+</ul>
+<h2 id="vue组件中data为什么必须是一个函数"><a href="#vue组件中data为什么必须是一个函数" class="headerlink" title="vue组件中data为什么必须是一个函数"></a>vue组件中data为什么必须是一个函数</h2><p>避免组件中的数据互相影响。<br><br>因为组件是用来复用的，并且 JS 里对象是引用关系，如果组件中 data 是一个对象，那么这样作用域没有隔离性，子组件中的 data 属性值会相互影响，如果组件中 data 选项是一个函数，那么每个实例可以维护一份被返回对象的独立的拷贝，组件实例之间的 data 属性值不会互相影响；而 new Vue 的实例，是不会被复用的，因此不存在引用对象的问题。</p>
+<h2 id="为什么要使用异步组件？"><a href="#为什么要使用异步组件？" class="headerlink" title="为什么要使用异步组件？"></a>为什么要使用异步组件？</h2><ol>
+<li>节省打包出的结果，异步组件分开打包，采用 jsonp 的方式进行加载，有效解决文件过大的问题。</li>
+<li>核心就是包组件定义变成一个函数，依赖 import（） 语法，可以实现文件的分割加载。</li>
+</ol>
+<h2 id="谈谈对-keep-alive-的了解"><a href="#谈谈对-keep-alive-的了解" class="headerlink" title="谈谈对 keep-alive 的了解"></a>谈谈对 keep-alive 的了解</h2><ol>
+<li>keep-alive 是 Vue 内置的一个组件，可以实现组件的缓存，当组件切换时不会对当前组件进行卸载。</li>
+<li>常用的 2 个属性 include/exclude，允许组件有条件的进行缓存 3. 2 个生命周期 activated ， deactivated，用来得知当前组件是否处于活跃状态。</li>
+<li>keep-alive 的中还运用了 LRU(Least Recently Used)算法。</li>
+</ol>
+<h2 id="Computed-watch-和-method-简述computed和watch的使用场景"><a href="#Computed-watch-和-method-简述computed和watch的使用场景" class="headerlink" title="Computed watch 和 method, 简述computed和watch的使用场景"></a>Computed watch 和 method, 简述computed和watch的使用场景</h2><ul>
+<li>computed：本质是一个具备缓存的 watcher，只有当依赖的数据变化时才会计算, 当数据没有变化时, 它会读取缓存数据。适用于计算比较消耗性能的计算场景</li>
+<li>watch:  没有缓存性，更多的是观察的作用，可以监听某些数据执行回调。适用于数据变化时的异步操作。如果需要在某个数据变化时做一些事情，使用 watch。<br>深度监听&gt; deep：true,会带来性能问题, 优化的话可以使用字符串形式监听</li>
+<li>method：只要把方法用到模板上了,每次一变化就会重新渲染视图，性能开销大</li>
+</ul>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ol>
+<li>computed : 当一个属性受多个属性影响的时候就需要用到 computed <br>最典型的栗子：购物车商品结算的时候</li>
+<li>watch : 当一条数据影响多条数据的时候就需要用 watch <br>栗子：搜索数据</li>
+</ol>
+<h2 id="v-if和v-for的优先级"><a href="#v-if和v-for的优先级" class="headerlink" title="v-if和v-for的优先级"></a>v-if和v-for的优先级</h2><p>当 v-if 与 v-for 一起使用时，v-for 具有比 v-if 更高的优先级，这意味着 v-if 将分别重复运行于每个 v-for 循环中。所以，不推荐 v-if 和 v-for 同时使用。<br><br>如果 v-if 和 v-for 一起用的话，vue中的的会自动提示 v-if 应该放到外层去。</p>
+<h2 id="assets和static的区别"><a href="#assets和static的区别" class="headerlink" title="assets和static的区别"></a>assets和static的区别</h2><ol>
+<li><p>相同点<br>assets 和 static 两个都是存放静态资源文件。项目中所需要的资源文件图片，字体图标，样式文件等都可以放在这两个文件下</p>
+</li>
+<li><p>不相同点</p>
+<ul>
+<li>assets<br>assets中存放的静态资源文件在项目打包时，也就是运行 npm run build 时会将 assets 中放置的静态资源文件进行打包上传，所谓打包简单点可以理解为压缩体积，代码格式化。而压缩后的静态资源文件最终也都会放置在 static 文件中跟着 index.html 一同上传至服务器。</li>
+<li>static<br>static中放置的静态资源文件就不会要走打包压缩格式化等流程，而是直接进入打包好的目录，直接上传至服务器。因为避免了压缩直接进行上传，在打包时会提高一定的效率，但是 static 中的资源文件由于没有进行压缩等操作，所以文件的体积也就相对于 assets 中打包后的文件提交较大点。在服务器中就会占据更大的空间。</li>
+</ul>
+</li>
+<li><p>建议<br>将项目中 template需要的样式文件js文件等都可以放置在 assets 中，走打包这一流程。减少体积。而项目中引入的第三方的资源文件如<code>iconfoont.css </code>等文件可以放置在 <code>static</code> 中，因为这些引入的第三方文件已经经过处理，我们不再需要处理，直接上传。</p>
+</li>
+</ol>
+<h2 id="说出几种vue当中的指令和它的用法？"><a href="#说出几种vue当中的指令和它的用法？" class="headerlink" title="说出几种vue当中的指令和它的用法？"></a>说出几种vue当中的指令和它的用法？</h2><ul>
+<li>v-model 双向数据绑定；</li>
+<li>v-for 循环；</li>
+<li>v-if v-show 显示与隐藏；</li>
+<li>v-on 事件；v-once : 只绑定一次。</li>
+</ul>
+<h2 id="vue-loader是什么？使用它的用途有哪些？"><a href="#vue-loader是什么？使用它的用途有哪些？" class="headerlink" title="vue-loader是什么？使用它的用途有哪些？"></a>vue-loader是什么？使用它的用途有哪些？</h2><p>vue 文件的一个加载器，将 template/js/style 转换成 js 模块。</p>
+<p>用途：js 可以写 es6 、 style样式可以 scss 或 less 、 template 可以加 jade等</p>
+<h2 id="v-on可以监听多个方法"><a href="#v-on可以监听多个方法" class="headerlink" title="v-on可以监听多个方法"></a>v-on可以监听多个方法</h2><p>栗子：<code>&lt;input type=&quot;text&quot; v-on=&quot;&#123; input:onInput,focus:onFocus,blur:onBlur, &#125;&quot;&gt;</code></p>
+<h2 id="了解-nextTick-吗？"><a href="#了解-nextTick-吗？" class="headerlink" title="了解 nextTick 吗？"></a>了解 nextTick 吗？</h2><p>在下次 DOM 更新循环结束之后执行延迟回调</p>
+<p>Vue的nextTick其本质上是对JS执行原理EventLoop的一种应用</p>
+<p>nextTick的核心应用：Promise、MutationObserver、setImmediate、setTimeout的原生JS的方法来模拟对应的微/宏任务的实现，本质时是为了利用JS的这些异步回调任务队列来实现Vue框架中自己的异步回调队列</p>
+<p>nextTick不仅是Vue内部的异步队列的调用方法，同时也允许开发者在实际项目中使用这个方法来满足实际应用中对DOM更新数据时的后续逻辑处理</p>
+<p>nextTick是典型的将底层JS执行原理应用到具体案例中的示例</p>
+<h2 id="nextTick的使用"><a href="#nextTick的使用" class="headerlink" title="$nextTick的使用"></a>$nextTick的使用</h2><p>当你修改了data 的值然后马上获取这个 dom 元素的值，是不能获取到更新后的值， 你需要使用 $nextTick 这个回调，让修改后的 data 值渲染更新到 dom 元素之后在获取，才能成功。</p>
+<h2 id="v-html-会导致哪些问题"><a href="#v-html-会导致哪些问题" class="headerlink" title="v-html 会导致哪些问题"></a>v-html 会导致哪些问题</h2><ol>
+<li>XSS 攻击</li>
+<li>v-html 会替换标签内部的元素</li>
+</ol>
+<h2 id="vue常用的修饰符"><a href="#vue常用的修饰符" class="headerlink" title="vue常用的修饰符"></a>vue常用的修饰符</h2><ol>
+<li><p>.stop：等同于 JavaScript 中的 event.stopPropagation() ，防止事件冒泡；</p>
+</li>
+<li><p>.prevent ：等同于 JavaScript 中的 event.preventDefault() ，防止执行预设的行为（如果事件可取消，则取消该事件，而不停止事件的进一步传播）；</p>
+</li>
+<li><p>.capture ：与事件冒泡的方向相反，事件捕获由外到内；</p>
+</li>
+<li><p>.self ：只会触发自己范围内的事件，不包含子元素；</p>
+</li>
+<li><p>.once ：只会触发一次</p>
+</li>
+</ol>
+<h2 id="引进组件的步骤"><a href="#引进组件的步骤" class="headerlink" title="引进组件的步骤"></a>引进组件的步骤</h2><ol>
+<li>在template中引入组件；</li>
+<li>在script的第一行用import引入路径；</li>
+<li>用component中写上组件名称。</li>
+</ol>
+<h2 id="delete和Vue-delete删除数组的区别"><a href="#delete和Vue-delete删除数组的区别" class="headerlink" title="delete和Vue.delete删除数组的区别"></a>delete和Vue.delete删除数组的区别</h2><p>delete 只是被删除的元素变成了 empty/undefined 其他的元素的键值还是不变。<br><br>Vue.delete 直接删除了数组 改变了数组的键值。</p>
+<h2 id="vue-slot"><a href="#vue-slot" class="headerlink" title="vue slot"></a>vue slot</h2><p>简单来说，假如父组件需要在子组件内放一些DOM，那么这些DOM是显示、不显示、在哪个地方显示、如何显示，就是slot分发负责的活。</p>
+<h2 id="插槽与作用域插槽的区别"><a href="#插槽与作用域插槽的区别" class="headerlink" title="插槽与作用域插槽的区别"></a>插槽与作用域插槽的区别</h2><ol>
+<li><p>插槽</p>
+<ul>
+<li><p>创建组件虚拟节点时，会将组件儿子的虚拟节点保存起来。当初始化组件时，通过插槽属性将儿子进行分类 <code>&#123;a:[vnode],b[vnode]&#125;</code></p>
+</li>
+<li><p>渲染组件时会拿对应的 slot 属性的节点进行替换操作。（插槽的作用域为父组件）</p>
+</li>
+</ul>
+</li>
+<li><p>作用域插槽</p>
+<ul>
+<li><p>作用域插槽在解析的时候不会作为组件的孩子节点。会解析成函数，当子组件渲染时，会调用此函数进行渲染。</p>
+</li>
+<li><p>普通插槽渲染的作用域是父组件，作用域插槽的渲染作用域是当前子组件。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="slot是什么？有什么作用？原理是什么？"><a href="#slot是什么？有什么作用？原理是什么？" class="headerlink" title="slot是什么？有什么作用？原理是什么？"></a>slot是什么？有什么作用？原理是什么？</h2><p>slot又名插槽，是Vue的内容分发机制，组件内部的模板引擎使用slot元素作为承载分发内容的出口。插槽slot是子组件的一个模板标签元素，而这一个标签元素是否显示，以及怎么显示是由父组件决定的。<br>slot又分三类，默认插槽，具名插槽和作用域插槽。</p>
+<p>默认插槽：又名匿名查抄，当slot没有指定name属性值的时候一个默认显示插槽，一个组件内只有有一个匿名插槽。<br>具名插槽：带有具体名字的插槽，也就是带有name属性的slot，一个组件可以出现多个具名插槽。<br>作用域插槽：默认插槽、具名插槽的一个变体，可以是匿名插槽，也可以是具名插槽，该插槽的不同点是在子组件渲染作用域插槽时，可以将子组件内部的数据传递给父组件，让父组件根据子组件的传递过来的数据决定如何渲染该插槽。</p>
+<p>实现原理：当子组件vm实例化时，获取到父组件传入的slot标签的内容，存放在vm.$slot中，默认插槽为vm.$slot.default，具名插槽为vm.$slot.xxx，xxx 为插槽名，当组件执行渲染函数时候，遇到slot标签，使用$slot中的内容进行替换，此时可以为插槽传递数据，若存在数据，则可称该插槽为作用域插槽。</p>
+<h2 id="请说下封装-vue-组件的过程？"><a href="#请说下封装-vue-组件的过程？" class="headerlink" title="请说下封装 vue 组件的过程？"></a>请说下封装 vue 组件的过程？</h2><ol>
+<li><p>建立组件的模板，先把架子搭起来，写写样式，考虑好组件的基本逻辑。(os：思考1小时，码码10分钟，程序猿的准则。) 　　</p>
+</li>
+<li><p>准备好组件的数据输入。即分析好逻辑，定好 props 里面的数据、类型。　　</p>
+</li>
+<li><p>准备好组件的数据输出。即根据组件逻辑，做好要暴露出来的方法。　　</p>
+</li>
+<li><p>封装完毕了，直接调用即可</p>
+</li>
+</ol>
+<h2 id="vue-中相同逻辑如何抽离"><a href="#vue-中相同逻辑如何抽离" class="headerlink" title="vue 中相同逻辑如何抽离"></a>vue 中相同逻辑如何抽离</h2><p>考察 vue.mixin 用法，给组件每个生命周期，函数都混入一些公共逻辑</p>
+<h2 id="vue修改打包后静态资源路径的修改"><a href="#vue修改打包后静态资源路径的修改" class="headerlink" title="vue修改打包后静态资源路径的修改"></a>vue修改打包后静态资源路径的修改</h2><p>cli2 版本：将 config/index.js 里的 assetsPublicPath 的值改为  ./  。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">build: &#123;</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">  assetsPublicPath:  .&#x2F; ,</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>cli3版本：在根目录下新建vue.config.js 文件，然后加上以下内容：（如果已经有此文件就直接修改）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  publicPath: , &#x2F;&#x2F; 相对于 HTML 页面（目录相同）</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="那template和jsx的有什么分别？"><a href="#那template和jsx的有什么分别？" class="headerlink" title="那template和jsx的有什么分别？"></a>那template和jsx的有什么分别？</h2><p>对于 runtime 来说，只需要保证组件存在 render 函数即可，而我们有了预编译之后，我们只需要保证构建过程中生成 render 函数就可以。<br>在 webpack 中，我们使用vue-loader编译.vue文件，内部依赖的vue-template-compiler模块，在 webpack 构建过程中，将template预编译成 render 函数。<br>与 react 类似，在添加了jsx的语法糖解析器babel-plugin-transform-vue-jsx之后，就可以直接手写render函数。<br>所以，template和jsx的都是render的一种表现形式，不同的是：<br>JSX相对于template而言，具有更高的灵活性，在复杂的组件中，更具有优势，而 template 虽然显得有些呆滞。但是 template 在代码结构上更符合视图与逻辑分离的习惯，更简单、更直观、更好维护。</p>
+<h2 id="什么是-vue-生命周期？有什么作用？"><a href="#什么是-vue-生命周期？有什么作用？" class="headerlink" title="什么是 vue 生命周期？有什么作用？"></a>什么是 vue 生命周期？有什么作用？</h2><p>每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做 生命周期钩子 的函数，这给了用户在不同阶段添加自己的代码的机会。（ps：生命周期钩子就是生命周期函数）例如，如果要通过某些插件操作DOM节点，如想在页面渲染完后弹出广告窗， 那我们最早可在mounted 中进行。</p>
+<h2 id="第一次页面加载会触发哪几个钩子？"><a href="#第一次页面加载会触发哪几个钩子？" class="headerlink" title="第一次页面加载会触发哪几个钩子？"></a>第一次页面加载会触发哪几个钩子？</h2><p>答：beforeCreate， created， beforeMount， mounted</p>
+<h2 id="介绍一下Vue的生命周期"><a href="#介绍一下Vue的生命周期" class="headerlink" title="介绍一下Vue的生命周期"></a>介绍一下Vue的生命周期</h2><ol>
+<li>beforeCreate：是new Vue()之后触发的第一个钩子，在当前阶段data、methods、computed以及watch上的数据和方法都不能被访问。</li>
+<li>created：在实例创建完成后发生，当前阶段已经完成了数据观测，也就是可以使用数据，更改数据，在这里更改数据不会触发updated函数。可以做一些初始数据的获取，在当前阶段无法与Dom进行交互，如果非要想，可以通过vm.$nextTick来访问Dom。</li>
+<li>beforeMount：发生在挂载之前，在这之前template模板已导入渲染函数编译。而当前阶段虚拟Dom已经创建完成，即将开始渲染。在此时也可以对数据进行更改，不会触发updated。</li>
+<li>mounted：在挂载完成后发生，在当前阶段，真实的Dom挂载完毕，数据完成双向绑定，可以访问到Dom节点，使用$refs属性对Dom进行操作。</li>
+<li>beforeUpdate：发生在更新之前，也就是响应式数据发生更新，虚拟dom重新渲染之前被触发，你可以在当前阶段进行更改数据，不会造成重渲染。</li>
+<li>updated：发生在更新完成之后，当前阶段组件Dom已完成更新。要注意的是避免在此期间更改数据，因为这可能会导致无限循环的更新。</li>
+<li>beforeDestroy：发生在实例销毁之前，在当前阶段实例完全可以被使用，我们可以在这时进行善后收尾工作，比如清除计时器。</li>
+<li>destroyed：发生在实例销毁之后，这个时候只剩下了dom空壳。组件已被拆解，数据绑定被卸除，监听被移出，子实例也统统被销毁。</li>
+</ol>
+<h2 id="组件之间是怎么通信的"><a href="#组件之间是怎么通信的" class="headerlink" title="组件之间是怎么通信的"></a>组件之间是怎么通信的</h2><ol>
+<li>父子组件通信</li>
+</ol>
+<p>父组件 -&gt; 子组件：prop<br>子组件 -&gt; 父组件：$on/$emit<br>获取组件实例：使用$parent/$children，$refs.xxx，获取到实例后直接获取属性数据或调用组件方法</p>
+<ol start="2">
+<li>兄弟组件通信</li>
+</ol>
+<p>Event Bus：每一个Vue实例都是一个Event Bus，都支持$on/$emit，可以为兄弟组件的实例之间new一个Vue实例，作为Event Bus进行通信。<br>Vuex：将状态和方法提取到Vuex，完成共享</p>
+<ol start="3">
+<li>跨级组件通信</li>
+</ol>
+<p>使用provide/inject<br>provide / inject 适用于 隔代组件通信 祖先组件中通过 provider 来提供变量，然后在子孙组件中通过 inject 来注入变量。 provide / inject API 主要解决了跨级组件间的通信问题，不过它的使用场景，主要是子组件获取上级组件的状态，跨级组件间建立了一种主动提供与依赖注入的关系。<br>。</p>
+<ol start="4">
+<li>attrs/listeners 适用于 隔代组件通信</li>
+</ol>
+<p>attrs: 包含了父作用域中不被prop所识别(且获取)的特性绑定(class和style除外)。当一个组件没有声明任何prop时，这里会包含所有父作用域的绑定(class和style除外)，并且可以通过v−bind=”attrs:包含了父作用域中不被 prop 所识别 (且获取) 的特性绑定 ( class 和 style 除外 )。当一个组件没有声明任何 prop 时，这里会包含所有父作用域的绑定 ( class 和 style 除外 )，并且可以通过v-bind=”attrs:包含了父作用域中不被prop所识别(且获取)的特性绑定(class和style除外)。当一个组件没有声明任何prop时，这里会包含所有父作用域的绑定(class和style除外)，并且可以通过v−bind=”attrs”传入内部组件。通常配合inheritAttrs选项一起使用。</p>
+<p>listeners: 包含了父作用域中的(不含.native修饰器的)v−on事件监听器。它可以通过v−on=”listeners:包含了父作用域中的 (不含 .native 修饰器的) v-on事件监听器。它可以通过v-on=”listeners:包含了父作用域中的(不含.native修饰器的)v−on事件监听器。它可以通过v−on=”listeners”传入内部组件</p>
+<p>Vuex 适用于 父子、隔代、兄弟组件通信。Vuex 是一个专为 Vue.js 应用程序开发的状态管理模式。每一个 Vuex 应用的核心就是 store（仓库）。“store” 基本上就是一个容器，它包含着你的应用中大部分的状态 ( state )。</p>
+<p>Vuex 的状态存储是响应式的。当 Vue 组件从 store 中读取状态的时候，若 store 中的状态发生变化，那么相应的组件也会相应地得到高效更新。改变 store 中的状态的唯一途径就是显式地提交 (commit) mutation。这样使得我们可以方便地跟踪每一个状态的变化。</p>
+<h2 id="说一下Vue-的父组件和子组件生命周期钩子函数执行顺序？"><a href="#说一下Vue-的父组件和子组件生命周期钩子函数执行顺序？" class="headerlink" title="说一下Vue 的父组件和子组件生命周期钩子函数执行顺序？"></a>说一下Vue 的父组件和子组件生命周期钩子函数执行顺序？</h2><p>组件的调用顺序都是先父后子,渲染完成的顺序是先子后父。<br>组件的销毁操作是先父后子，销毁完成的顺序是先子后父。</p>
+<ol>
+<li><p>加载渲染过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">父 beforeCreate -&gt; 父 created -&gt; 父 beforeMount -&gt; 子 beforeCreate -&gt; 子 created -&gt; 子 beforeMount -&gt; 子 mounted -&gt; 父 mounted</span><br></pre></td></tr></table></figure></li>
+<li><p>子组件更新过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">父 beforeUpdate -&gt; 子 beforeUpdate -&gt; 子 updated -&gt; 父 updated</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>父组件更新过程<br><code>父 beforeUpdate -&gt; 父 updated</code></p>
+</li>
+<li><p>销毁过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">父 beforeDestroy -&gt; 子 beforeDestroy -&gt; 子 destroyed -&gt; 父 destroyed</span><br></pre></td></tr></table></figure>
+<h2 id="子组件可以直接改变父组件的数据么？说说你的理由？"><a href="#子组件可以直接改变父组件的数据么？说说你的理由？" class="headerlink" title="子组件可以直接改变父组件的数据么？说说你的理由？"></a>子组件可以直接改变父组件的数据么？说说你的理由？</h2></li>
+</ol>
+<p>主要是为了维护父子组件的单向数据流</p>
+<p>每次父组件发生更新时，子组件中所有的prop都将会刷新为最新的值<br>如果这样做的话，Vue会在浏览器控制台中发出警告<br>Vue提倡单向数据流，即父级props的更新会流向子组件，但是反过来则不行。这是为了防止意外的改变父组件的状态，使得应用的数据流变得难以理解，导致数据流混乱。如果破环了单向数据流，当应用复杂情况时，debug的成本会非常高<br>只有通过$emit派发一个自定义事件，父组件接收后，由父组件修改.</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://lonelyzou.github.io/">覆水行舟</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://lonelyzou.github.io/">https://lonelyzou.github.io/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">此文章版权归覆水行舟所有，如有转载，请註明来自原作者</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95-Vue/">面试 Vue</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.png" target="_blank"><img class="post-qr-code-img" data-lazy-src="/img/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" data-lazy-src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/03/08/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BReact%E7%AF%87/"><img class="prev-cover" data-lazy-src="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">面试宝典之React篇</div></div></a></div><div class="next-post pull-right"><a href="/2021/03/04/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BVue%E8%B7%AF%E7%94%B1&amp;vuex%E9%9D%A2%E8%AF%95%E7%AF%87/"><img class="next-cover" data-lazy-src="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">面试宝典之Vue路由&amp;vuex面试篇</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2021/03/04/面试宝典之Vue路由&vuex面试篇/" title="面试宝典之Vue路由&vuex面试篇"><img class="relatedPosts_cover" data-lazy-src="https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-04</div><div class="relatedPosts_title">面试宝典之Vue路由&vuex面试篇</div></div></a></div><div class="relatedPosts_item"><a href="/2021/03/02/面试宝典之Vue原理面试篇/" title="面试宝典之Vue原理面试篇"><img class="relatedPosts_cover" data-lazy-src="https://i.loli.net/2020/08/05/H1fRJEoGhWv2Vy6.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-02</div><div class="relatedPosts_title">面试宝典之Vue原理面试篇</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://i.loli.net/2020/08/05/QFz9sfR7Du4KLJd.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 覆水行舟</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer="defer" id="ribbon_piao" mobile="true" src="/js/third-party/piao.js"></script></div></body></html>
