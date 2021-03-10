@@ -2,7 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://github.com/2021/03/08/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BReact%E7%AF%87/</loc>
+    <loc>http://github.com/2021/03/08/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BReact%E5%9F%BA%E7%A1%80%E7%AF%87/</loc>
+    
+    <lastmod>2021-03-07T16:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://github.com/2021/03/08/%E9%9D%A2%E8%AF%95%E5%AE%9D%E5%85%B8%E4%B9%8BReactHooks%E7%AF%87/</loc>
     
     <lastmod>2021-03-07T16:00:00.000Z</lastmod>
     
